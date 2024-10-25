@@ -14,59 +14,29 @@ async function extractMetaboliteDataFromPDF(pdfPath) {
     // Clean up the text: remove excessive newlines, multiple spaces, and other irregularities
     fullText = fullText.replace(/\s+/g, ' ').trim();
 
-    // Regular expression to find panel description, drug code, and metabolite data
-    const panelRegex = /Panel Description of Alere Test Code (\d+)/g;
-
-    // Updated regular expression to capture drug code, drug name, and metabolites
+    // Regular expression to match the drug code, drug name, and metabolites
     const drugPattern =
-      /([A-Z]+)\s+([\w/\- ]+)\s+Including:\s+(- [\w, \-/]+)+/g;
+      /([A-Z]+)\s+([\w/\- ]+)\s+Including:\s+(- [\w, \-/]+(?:\s*- [\w, \-/]+)*)/g;
 
     let match;
     const results = [];
 
-    // Collect all matches for panel descriptions
-    const panelMatches = [];
-    while ((match = panelRegex.exec(fullText)) !== null) {
-      panelMatches.push({ panelCode: match[1], index: match.index });
-    }
-      
-    console.log(panelMatches);
+    // Loop over matches for the drug pattern
+    while ((match = drugPattern.exec(fullText)) !== null) {
+      const drugCode = match[1];
+      const drugName = match[2].trim();
 
-    // Loop over each panel description and extract the data between them
-    for (let i = 0; i < panelMatches.length; i++) {
-      const panelCode = panelMatches[i].panelCode;
-      const panelTextStart = panelMatches[i].index;
-      const panelTextEnd =
-        i + 1 < panelMatches.length
-          ? panelMatches[i + 1].index
-          : fullText.length;
+      // Extract metabolites, remove hyphen and clean up
+      const metabolites = match[3]
+        .split('-')
+        .map((m) => m.trim())
+        .filter((m) => m.length > 0);
 
-      // Extract the text between this panel and the next
-      const panelText = fullText.slice(panelTextStart, panelTextEnd);
-
-      let drugMatch;
-      // Find drug codes and metabolites in the panel text
-      while ((drugMatch = drugPattern.exec(panelText)) !== null) {
-        const drugCode = drugMatch[1].trim();
-        const drugName = drugMatch[2].trim();
-
-        // Extract metabolites by splitting on hyphen and removing empty spaces
-        const metabolitesList = drugMatch[0]
-          .match(/- [\w, \-/]+/g)
-          .map((m) => m.replace('- ', '').trim());
-
-        results.push({
-          panel: panelCode,
-          drug_code: drugCode,
-          drug_name: drugName,
-          metabolites: metabolitesList,
-        });
-      }
-
-      // Log if no matches were found
-      if (results.length === 0) {
-        console.log(`No drug matches found for Panel ${panelCode}`);
-      }
+      results.push({
+        drug_code: drugCode,
+        drug_name: drugName,
+        metabolites: metabolites,
+      });
     }
 
     return results;
@@ -76,8 +46,7 @@ async function extractMetaboliteDataFromPDF(pdfPath) {
 }
 
 // Example usage:
-// Use path.resolve to create an absolute file path to the PDF
-const pdfPath = path.resolve('path_to_your_pdf_file.pdf'); // Update with your actual file path
+const pdfPath = 'path_to_your_pdf_file.pdf'; // Replace with the actual path to your PDF file
 extractMetaboliteDataFromPDF(pdfPath)
   .then((metaboliteData) => {
     console.log(JSON.stringify(metaboliteData, null, 2));

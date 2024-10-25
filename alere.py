@@ -3,7 +3,7 @@ import json
 import re
 
 # Path to the PDF file
-pdf_path = 'path_to_your_pdf_file.pdf'
+pdf_path = 'alere.pdf'
 
 
 def extract_panel_tables(pdf_path):
