@@ -31,8 +31,8 @@ with pdfplumber.open(pdf_path) as pdf:
                 if current_screening_descriptor and current_confirmation_descriptors:
                     results.append({
                         "panel_id": panel_id,
-                        "Screening_Test_Descriptor": current_screening_descriptor.strip(),
-                        "Confirmation_Test_Descriptor": current_confirmation_descriptors
+                        "drug_class": current_screening_descriptor.strip(),
+                        "Metabolite": current_confirmation_descriptors
                     })
                 
                 # Reset for the next screening test
@@ -48,8 +48,8 @@ with pdfplumber.open(pdf_path) as pdf:
         if current_screening_descriptor and current_confirmation_descriptors:
             results.append({
                 "panel_id": panel_id,
-                "Screening_Test_Descriptor": current_screening_descriptor.strip(),
-                "Confirmation_Test_Descriptor": current_confirmation_descriptors
+                "drug_class": current_screening_descriptor.strip(),
+                "Metabolite": current_confirmation_descriptors
             })
 
 # Convert the results to JSON format
