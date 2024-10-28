@@ -1,13 +1,13 @@
 import pdfplumber
 import json
 import re
+import os
 
 # Path to the PDF file
-pdf_path = 'alere.pdf'
-
+pdf_directory = './pdf'
 
 def extract_panel_tables(pdf_path):
-    tables = []
+    output_list = []
     current_panel_id = None
 
     with pdfplumber.open(pdf_path) as pdf:
@@ -39,25 +39,27 @@ def extract_panel_tables(pdf_path):
 
                             # Now check if the row is valid (must have 5 columns after concatenation)
                             if len(row) == 5:
-                                table_entry = {
-                                    "panel_id": current_panel_id,
-                                    "Drug Code": row[0].strip(),
-                                    "Drug Class": row[1].strip().replace("\n", ""),
-                                    "Metabolite": row[2].strip()[len("Including:\n- "):].replace("\n- ", ", ").replace("-\n", "").replace("\n", ""),
-                                    "Screening Cut-Off": row[3].strip(),
-                                    "Confirm Cut-Off": row[4].strip()
-                                }
-                                tables.append(table_entry)
+                                metabolite = row[2].strip()[len("Including:\n- "):].replace("\n- ", ", ").replace("-\n", "").replace("\n", "")
+                                query = f"UPDATE analyte_service_map SET METABOLITE = {metabolite} WHERE SERVICE_ID = 'service-drug-{current_panel_id}-panel';\n"
+                                file.write(query)
+                                output_list.append(query)
                             else:
                                 print(f"Incomplete or malformed row detected: {row}")  # Debugging output
 
-    return tables
+    return output_list
 
-# Extract the tables and return them as a list of dictionaries
-extracted_tables = extract_panel_tables(pdf_path)
+output_file = 'output.sql'
 
-# Convert the tables to JSON format
-json_output = json.dumps(extracted_tables, indent=4)
+# Open the file in write mode ('w') and write the string to it
+with open(output_file, 'w') as file:
+    for filename in os.listdir(pdf_directory):
+        if filename.endswith('.pdf'):
+            pdf_path = os.path.join(pdf_directory, filename)
+            # Extract the tables and return them as a list of dictionaries
+            extracted_tables = extract_panel_tables(pdf_path)
 
-# Display the final result
-print(json_output)
+            # Convert the tables to JSON format
+            json_output = json.dumps(extracted_tables, indent=4)
+
+            # Display the final result
+            print(json_output)
