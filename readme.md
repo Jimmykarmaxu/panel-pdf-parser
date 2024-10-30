@@ -17,3 +17,9 @@ Install the pdf utility tool
 Run the code with python for example in alere folder 
 
 `python3 alere.py`
+
+To run the ai example 
+
+create .env file and put in token like this
+
+`OPENAI_API_KEY=hello world`

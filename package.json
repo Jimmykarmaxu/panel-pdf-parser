@@ -2,6 +2,7 @@
   "name": "pdf_parser",
   "version": "1.0.0",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -9,6 +10,9 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "dotenv": "^16.4.5",
+    "openai": "^4.68.4",
+    "openapi-sdk": "^0.0.1",
     "path": "^0.12.7",
     "pdf-lib": "^1.17.1",
     "pdf-parse": "^1.1.1",
