@@ -2,13 +2,18 @@ import pdfplumber
 import json
 import re
 import os
+import analyte_mapping
 
 # Path to the PDF file
 pdf_directory = './pdf'
 
+no_mapping_list = []
+metabolite_list = []    
+
 def extract_panel_tables(pdf_path):
     output_list = []
     current_panel_id = None
+    global metabolite_list
 
     with pdfplumber.open(pdf_path) as pdf:
         for page in pdf.pages:
@@ -40,9 +45,12 @@ def extract_panel_tables(pdf_path):
                             # Now check if the row is valid (must have 5 columns after concatenation)
                             if len(row) == 5:
                                 metabolite = row[2].strip()[len("Including:\n- "):].replace("\n- ", ", ").replace("-\n", "").replace("\n", "")
-                                query = f"UPDATE analyte_service_map SET METABOLITE = {metabolite} WHERE SERVICE_ID = 'service-drug-{current_panel_id}-panel';\n"
+                                analyte = analyte_mapping.get_mapped_value(row[1], no_mapping_list)
+
+                                query = f"UPDATE analyte_service_map SET METABOLITE = '{metabolite}' WHERE SERVICE_ID = 'service-drug-{current_panel_id}-panel' AND anaylte_type_id = '{analyte}';\n"
                                 file.write(query)
                                 output_list.append(query)
+                                metabolite_list += [item for item in metabolite.split(",") if item not in metabolite_list]
                             else:
                                 print(f"Incomplete or malformed row detected: {row}")  # Debugging output
 
@@ -61,5 +69,10 @@ with open(output_file, 'w') as file:
             # Convert the tables to JSON format
             json_output = json.dumps(extracted_tables, indent=4)
 
+
             # Display the final result
-            print(json_output)
+            # print(json_output)
+
+print(no_mapping_list)
+print(metabolite_list)
+
