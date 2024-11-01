@@ -50,11 +50,28 @@ row_data = {
     "Benzodiazepines Oral Fluid": "benzodiazepines",
     "Barbiturates Quantisal Oral Fluid": "barbiturates",
     "Marijuana Oral Fluid": "marijuana",
+    "Marijuana Metabolite": "marijuana",
     "Oxycodone/Oxymorphone Oral Fluid": "oxycodone-oxymorphone",
     "Methamphetamine Oral Fluid": "methamphetamine",
     "Methamphetamine Isomers Oral Fluid": "methamphetamine",
+    "Methamphetamine Isomers": "methamphetamine",
     "Cocaine Oral Fluid": "cocaine",
-    "AmphetamiAmphetamine Oral Fluid": "amphetamine",
+    "AmphetamiAmphetamine OrPHENCYCLIDINEal Fluid": "amphetamine",
+    "Extended Opiates (4)": "opiates",
+    "Extended Opiates (6)": "opiates",
+    "Extended Opiates Oral Fluid": "opiates",
+    "6-ACETYLMORPHINE": "6-monoacetylmorphine",
+    "6-Acetylmorphine Oral Fluid": "6-monoacetylmorphine",
+    "Amphetamine Oral Fluid": "amphetamine",
+    "Amphetamine/Methamphetamine": "amphetamine",
+    "Tramadol (Ultram)": "tramadol",
+    "Tricyclic Antidepressants": "tricyclics",
+    "DESIGNER STIMULANTS": "stimulants",
+    "EXTENDED BENZODIAZEPINES": "benzodiazepines",
+    "BENZOYLECGONINE- COCAINE METABOLITE": "cocaine",
+    "PHENCYCLIDINE": "pcp",
+    "PHENCYCLIDINE ORAL FLUID": "pcp",
+    "CODEINE/MORPHINE": "opiates",
     ## more to check and add
 }
 
@@ -62,10 +79,10 @@ mapping_data = {key.upper(): value for key, value in row_data.items()}
 
 
 # Function to get the mapped value
-def get_mapped_value(input_string, no_mapping):
+def get_mapped_value(input_string, no_mapping, panel_id):
     mapping_data_upper = {key.upper(): value for key, value in mapping_data.items()}
 
-    textToProcess = input_string.strip().upper().replace(" / ", "/").replace(" /\n", "/")
+    textToProcess = input_string.strip().upper().replace(" / ", "/").replace(" /\n", "/").replace("\n", " ")
     result = mapping_data.get(textToProcess)
 
     if result:
@@ -73,6 +90,5 @@ def get_mapped_value(input_string, no_mapping):
     else:
         print(textToProcess)
         if textToProcess not in no_mapping:
-            no_mapping.append(textToProcess)
-
-        return "N/A"
+            no_mapping.append(f'{textToProcess} - {panel_id}')
+        return 'null'

@@ -45,11 +45,11 @@ def extract_panel_tables(pdf_path):
                             # Now check if the row is valid (must have 5 columns after concatenation)
                             if len(row) == 5:
                                 metabolite = row[2].strip()[len("Including:\n- "):].replace("\n- ", ", ").replace("-\n", "").replace("\n", "")
-                                analyte = analyte_mapping.get_mapped_value(row[1], no_mapping_list)
-
-                                query = f"UPDATE analyte_service_map SET METABOLITE = '{metabolite}' WHERE SERVICE_ID = 'service-drug-{current_panel_id}-panel' AND anaylte_type_id = '{analyte}';\n"
-                                file.write(query)
-                                output_list.append(query)
+                                analyte = analyte_mapping.get_mapped_value(row[1], no_mapping_list, current_panel_id)
+                                if analyte != 'null':
+                                    query = f"UPDATE analyte_service_map SET METABOLITE = '{metabolite}' WHERE SERVICE_ID = 'service-drug-{current_panel_id}-panel' AND anaylte_type_id = '{analyte}';\n"
+                                    file.write(query)
+                                    output_list.append(query)
                                 metabolite_list += [item for item in metabolite.split(",") if item not in metabolite_list]
                             else:
                                 print(f"Incomplete or malformed row detected: {row}")  # Debugging output
